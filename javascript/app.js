@@ -55,10 +55,9 @@ const game = {
   play_game(){
     const player_name = prompt("Name your starship!");
     const player_ship = new Ship(player_name, 20,.7,5);
-
     let alien_fleet = game.create_alien_fleet();
     console.log(alien_fleet);
-    game.combat_round();
+    
   }
 }
 game.play_game();
