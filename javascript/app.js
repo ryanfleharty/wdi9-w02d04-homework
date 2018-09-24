@@ -1,63 +1,119 @@
-console.log("Javascript is working!");
+console.log('BATTLE BEGIN')
+
 class Ship {
-   constructor(name,hp,accuracy, firepower) {
+   constructor(name,hull,accuracy, damage) {
      this.name = name;
-     this.hp = hp;
+     this.hull = hull;
      this.accuracy = accuracy;
-     this.firepower = firepower;
+     this.damage = damage;
    }
-
-   attack (enemy) {
-    if (this.missile_attack = true){
-      this.missile_attack = false;
-      this.missiles--;
-      enemy.hp = 0;
-      console.log(`Your missile obliterated ${enemy}`);
-    }else{
-    if (Math.random() < this.accuracy) { //if a hit is rolled, subtract our firepower from the enemy's hp
-        enemy.hp = enemy.hp - this.firepower;
-        if(enemy.hp <= 0){ //if the enemy's hp is less than zero change it to zero
-            enemy.hp = 0;
-        }
-        console.log( `${this.name} hit ${enemy.name} for ${this.firepower}. ${enemy.name} has ${enemy.hp} remaining!`);
-    } else {
-        console.log(`${this.name} missed`)
-    }
-  }
-  }
 }
-
-
-class AlienShip extends Ship {
-    constructor(name,hp,accuracy,firepower) {
-        super(name,hp,accuracy,firepower)
-        this.name = name;
-        this.hp = Math.floor(Math.random()*(7-3)+3);
-        this.accuracy = (Math.random()*(.2)+.6);
-        this.firepower = Math.floor(Math.random()*(3))+2;
-    }
-}
-
-
-
 const game = {
-  create_alien_fleet(){
-    let alien_fleet = [];
-    const numberOfAlienShips = Math.floor(Math.random()*12)+2;
-    console.log(`There are ${numberOfAlienShips} alien ships.`);
-
-    for(let i =1; i<(numberOfAlienShips); i++){
-       alien_fleet[i] = new AlienShip(`alienShip${i}`, "hp","accuracy","firepower")
+  mothership: new Ship("Alien Mothership",50,1,15),
+  mothership_turret: new Ship("Mothership Turret",5,.7,5),
+  xenos_fleet: [],
+  active_xenos: [],
+  player: {},
+  killed_mothership: false,
+  make_wave(){
+    game.active_xenos = [];
+    for(i = 0; i < 3;i++){
+      if(game.xenos_fleet[0]){
+       game.active_xenos[i] = game.xenos_fleet[0];
+       game.xenos_fleet.splice(0,1);
+     }
     }
-    return alien_fleet;
+    game.update_xenos();
   },
+  attack(attacker, target){
+    console.log(attacker.accuracy);
+    console.log(target);
+    if(attacker.accuracy >= Math.random()){
+      target.hull-=attacker.damage;
+      $('header').html(`<h1>${attacker.name} attacked ${target.name} for ${attacker.damage}</h1>`);
+    }else{
+      $('header').html(`<h1>${attacker.name} missed!</h1>`);
+    }
+    game.update_player();
+    game.update_xenos();
+  },
+  check_win(){
+    console.log(game.active_xenos)
+    if(!game.active_xenos[0]){
+      game.make_wave()
+    }
+    if(!game.active_xenos[0] && !game.killed_mothership){
+      game.active_xenos[1] = game.mothership;
+      game.active_xenos[0] = game.mothership_turret;
+      game.active_xenos[2] = game.mothership_turret;
+      game.update_xenos();
+    }
+    if(game.mothership.hull == 0){
+      game.killed_mothership = true;
+    }
+    if(game.killed_mothership){
+      console.log("you win!")
+      $('body').html('');
+    }
+    if(game.player.hp<=0){
+      console.log("you have failed!");
+    }
+  },
+  update_player(){
+    $('.human div').html(`
+      <div class="human">
+        <h1>Star Defender</h1>
+        <p>
+          Hull: ${game.player.hull}
+          Damage: ${game.player.damage}
+          Accuracy: ${game.player.accuracy}
+        </p>
+        <image src="images/star_defender.png" class="human_ship">
+      </div>`)
+  },
+  update_xenos(){
+    console.log(game.active_xenos);
+    for(i=0;i<game.active_xenos.length;i++){
+      if(game.active_xenos[i].hull <= 0){
+        game.active_xenos.splice(i,1);
+      }
+    }
+    $('.alien').html('<div class="alien"></div>');
 
-  play_game(){
-    const player_name = prompt("Name your starship!");
-    const player_ship = new Ship(player_name, 20,.7,5);
-    let alien_fleet = game.create_alien_fleet();
-    console.log(alien_fleet);
-    
+    for(i = 0;i < game.active_xenos.length;i++){
+      $('.alien div').append(`
+        <h1>${game.active_xenos[i].name}</h1>
+        <p>
+        Hull: ${game.active_xenos[i].hull}
+        Damage: ${game.active_xenos[i].damage}
+        Accuracy: ${game.active_xenos[i].accuracy}
+        </p>
+        <image src="images/alien.png" class="alien_ship">
+        <button id="${i}" type="active_xenos[${i}]">Fire!</button>
+    `)
+    }
+    $('button').on('click', function(){
+      console.log(this);
+      game.on_button_click($(this).attr('id'))
+    });
+  },
+  on_button_click(button_id){
+    console.log(button_id);
+    console.log("button works!");
+    //attack enemy passed as parameter
+    game.attack(game.player,game.active_xenos[button_id]);
+    game.update_player();
+    game.update_xenos();
+    game.check_win();
+    },
+  play(){
+    game.player = new Ship('defender', 1000, .7, 5);
+    for(i=0;i<15;i++){
+      game.xenos_fleet[i] = new Ship(`Xenos Ship ${i+1}`, 5+Math.floor(Math.random())*3, .5+Math.random()*.2, 5);
+    }
+    game.make_wave()
+    game.update_player();
+    game.update_xenos();
   }
 }
-game.play_game();
+game.play();
