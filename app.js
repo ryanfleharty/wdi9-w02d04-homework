@@ -94,7 +94,7 @@ const game = {
 
 	displayCards: function(player1, player2){
 		$('#cards').html('<p/>');
-		$('#cards').html('<p id ="playersCard"/><p id ="computersCard"/> id ');
+		$('#cards').html('<p id ="playersCard"/><p id ="computersCard"/>');
 		$('#playersCard').html('<span id ="playersName"/>\'s card is: <span id ="playersCardAttributes"/>');
 		$('#computersCard').html('<span id ="computersName"/>\'s card is: <span id ="computersCardAttributes"/>');
 		$('#playersName').text(player1.name);
