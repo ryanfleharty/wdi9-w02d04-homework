@@ -104,7 +104,10 @@ const game = {
 	},
 
 	battle: function(player1, player2) {
+//		console.log(player1.hand);
+//		console.log(player2.hand);
 		if(player1.hand.length > 0 && player2.hand.length > 0){	
+			console.log('derp');
 			this.displayCards(player1, player2);
 			if (player1.hand[0].damage > player2.hand[0].damage){
 				player1.points++;
@@ -112,7 +115,7 @@ const game = {
 			else if (player2.hand[0].damage > player1.hand[0].damage){
 				player2.points++;
 			}
-			this.displayStats(this.eggbert, this.computer);
+//			this.displayStats(this.eggbert, this.computer);
 			this.cardsPlayed.push(player1.hand.splice(0,1)[0]);
 			this.cardsPlayed.push(player2.hand.splice(0,1)[0]);
 		}
@@ -137,7 +140,7 @@ const game = {
 		}
 	},
 	playRound: function(player1, player2) {
-		
+		console.log(player1.hand);	
 		if(this.numRounds===this.roundsPlayed){
 			this.determineGameWinner(this.eggbert, this.computer);
 			$('#playRound').off('click');
@@ -146,24 +149,25 @@ const game = {
 			$('#battle').prop('disabled', true );
 		}
 		else{
-			console.log(this.roundsPlayed);
+//			console.log(this.roundsPlayed);
 			this.roundsPlayed++;
-			console.log(this.roundsPlayed);
+// 			console.log(this.roundsPlayed);
 			this.numRounds = parseInt($('#rounds').val());
 			$('#rounds').prop('disabled',true);
 			$('#battle').prop('disabled', false);
 			$('#playRound').prop('disabled', true);
 			
 			this.drawHands(this.eggbert, this.computer, this.sizeOfHand);
+			console.log(player1.hand);
 			$('#roundCount').html('This is round <span id ="roundsPlayed"/>, you have <span id ="roundsLeft"/> left<p>');
 			$('#roundsPlayed').text(this.roundsPlayed);
 			$('#roundsLeft').text(this.numRounds-this.roundsPlayed);
-			$('#battle').on('click', () => {	
+			$('#battle').off().on('click', () => {	
 				this.battle(player1, player2);
 			});
 			this.determineRoundWinner(player1,player2);
-			player1.points = 0;
-			player2.points = 0;
+//			player1.points = 0;
+//			player2.points = 0;
 		}
 	},
 
