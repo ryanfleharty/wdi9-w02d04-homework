@@ -104,8 +104,8 @@ const game = {
 	},
 
 	battle: function(player1, player2) {
-		this.displayCards(player1, player2);
 		if(player1.hand.length > 0 && player2.hand.length > 0){	
+			this.displayCards(player1, player2);
 			if (player1.hand[0].damage > player2.hand[0].damage){
 				player1.points++;
 			}
@@ -119,6 +119,7 @@ const game = {
 		else {
 			$('#playRound').prop('disabled', false);
 			$('#battle').prop('disabled', true);
+			$('#cards').html('<p/>');
 		}
 	},
 
@@ -145,16 +146,16 @@ const game = {
 			$('#battle').prop('disabled', true );
 		}
 		else{
-			
+			console.log(this.roundsPlayed);
 			this.roundsPlayed++;
-
-			this.numRounds = $('#rounds').val();
+			console.log(this.roundsPlayed);
+			this.numRounds = parseInt($('#rounds').val());
 			$('#rounds').prop('disabled',true);
 			$('#battle').prop('disabled', false);
 			$('#playRound').prop('disabled', true);
 			
 			this.drawHands(this.eggbert, this.computer, this.sizeOfHand);
-			$('#game').prepend('<p>This is round <span id ="roundsPlayed"/>, you have <span id ="roundsLeft"/> left<p>');
+			$('#roundCount').html('This is round <span id ="roundsPlayed"/>, you have <span id ="roundsLeft"/> left<p>');
 			$('#roundsPlayed').text(this.roundsPlayed);
 			$('#roundsLeft').text(this.numRounds-this.roundsPlayed);
 			$('#battle').on('click', () => {	
@@ -181,8 +182,8 @@ const game = {
 
 	startGame: function() {
 		$('body').append('<p>A Basic pokemon game</p><p>Choose how many rounds you want to play, then click the battle button!');
-		$('body').append('<input type ="number" max ="6" id ="rounds"> How many rounds would you like to play?(up to 6)</input>');
-		$('body').append('<div id ="game"><div id ="cards"></div></div>');
+		$('body').append('<input type ="number" max ="3" id ="rounds"> How many rounds would you like to play?(up to 3)</input>');
+		$('body').append('<div id ="game"><p id ="roundCount"/><div id ="cards"></div></div>');
 		$('#game').append('<button id ="playRound">Play Round</button>');
 		$('#game').append('<button id ="battle">BATTLE!</button>');
 		$('#battle').prop('disabled', true);
