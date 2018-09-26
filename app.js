@@ -77,7 +77,7 @@ const game = {
 	cardsPlayed: [],
 	eggbert: new Player('eggbert'),
 	computer: new Player('computer'),
-	numRounds: 0,
+	numRounds: null,
 	roundsPlayed: 0,
 	sizeOfHand: 3,
 	
@@ -89,24 +89,40 @@ const game = {
 	},
 
 	displayStats: function(player1, player2){
-		console.log(`Score: ${this.eggbert.name}: ${this.eggbert.points}, ${this.computer.name}: ${this.computer.points}`);
+		
+	},
 
+	displayCards: function(player1, player2){
+		$('#cards').html('<p/>');
+		$('#cards').html('<p id ="playersCard"/><p id ="computersCard"/> id ');
+		$('#playersCard').html('<span id ="playersName"/>\'s card is: <span id ="playersCardAttributes"/>');
+		$('#computersCard').html('<span id ="computersName"/>\'s card is: <span id ="computersCardAttributes"/>');
+		$('#playersName').text(player1.name);
+		$('#computersName').text(player2.name);
+		$('#playersCardAttributes').text(player1.hand[0].name + ' with ' + player1.hand[0].damage + ' damage');
+		$('#computersCardAttributes').text(player2.hand[0].name + ' with ' + player2.hand[0].damage + ' damage');
 	},
 
 	battle: function(player1, player2) {
-		if (player1.hand[0].damage > player2.hand[0].damage){
-			player1.points++;
+		this.displayCards(player1, player2);
+		if(player1.hand.length > 0 && player2.hand.length > 0){	
+			if (player1.hand[0].damage > player2.hand[0].damage){
+				player1.points++;
+			}
+			else if (player2.hand[0].damage > player1.hand[0].damage){
+				player2.points++;
+			}
+			this.displayStats(this.eggbert, this.computer);
+			this.cardsPlayed.push(player1.hand.splice(0,1)[0]);
+			this.cardsPlayed.push(player2.hand.splice(0,1)[0]);
 		}
-		else if (player2.hand[0].damage > player1.hand[0].damage){
-			player2.points++;
+		else {
+			$('#playRound').prop('disabled', false);
+			$('#battle').prop('disabled', true);
 		}
-		this.displayStats(this.eggbert, this.computer);
-		this.cardsPlayed.push(player1.hand.splice(0,1)[0]);
-		this.cardsPlayed.push(player2.hand.splice(0,1)[0]);
 	},
 
 	determineRoundWinner: function(player1,player2) {
-		console.log(`${player1.name} had ${player1.points} points. ${player2.name} had ${player2.points} points. Therefore: `);
 		if (player1.points > player2.points){
 			player1.roundsWon++;
 			console.log(`${player1.name} won! ${player2.name} sucks`);
@@ -120,14 +136,34 @@ const game = {
 		}
 	},
 	playRound: function(player1, player2) {
-		console.log(`The cards in ${player1.name}\'s hand are: \n${JSON.stringify(player1.hand)}`); 
-				console.log(`The cards in ${player2.name}\'s hand are: \n${JSON.stringify(player2.hand)}`);
-				while((player1.hand.length > 0) && (player2.hand.length > 0)){
-					this.battle(player1, player2);
-			}
-		this.determineRoundWinner(player1,player2);
-		player1.points = 0;
-		player2.points = 0;
+		
+		if(this.numRounds===this.roundsPlayed){
+			this.determineGameWinner(this.eggbert, this.computer);
+			$('#playRound').off('click');
+			$('#battle').off('click');
+			$('#playRound').prop('disabled', true );
+			$('#battle').prop('disabled', true );
+		}
+		else{
+			
+			this.roundsPlayed++;
+
+			this.numRounds = $('#rounds').val();
+			$('#rounds').prop('disabled',true);
+			$('#battle').prop('disabled', false);
+			$('#playRound').prop('disabled', true);
+			
+			this.drawHands(this.eggbert, this.computer, this.sizeOfHand);
+			$('#game').prepend('<p>This is round <span id ="roundsPlayed"/>, you have <span id ="roundsLeft"/> left<p>');
+			$('#roundsPlayed').text(this.roundsPlayed);
+			$('#roundsLeft').text(this.numRounds-this.roundsPlayed);
+			$('#battle').on('click', () => {	
+				this.battle(player1, player2);
+			});
+			this.determineRoundWinner(player1,player2);
+			player1.points = 0;
+			player2.points = 0;
+		}
 	},
 
 	determineGameWinner: function(player1, player2) {
@@ -143,28 +179,20 @@ const game = {
 		}
 	},
 
-	playGame: function() {
-		this.drawHands(this.eggbert, this.computer, this.sizeOfHand); 
-		this.numRounds = $('#rounds').val();
-		
-		this.playRound(this.eggbert, this.computer);
-	},
-
 	startGame: function() {
 		$('body').append('<p>A Basic pokemon game</p><p>Choose how many rounds you want to play, then click the battle button!');
 		$('body').append('<input type ="number" max ="6" id ="rounds"> How many rounds would you like to play?(up to 6)</input>');
-		$('body').append('<div id ="game"></div>');
+		$('body').append('<div id ="game"><div id ="cards"></div></div>');
 		$('#game').append('<button id ="playRound">Play Round</button>');
-		$('#game').append('<button id ="battle>BATTLE!</button>');
+		$('#game').append('<button id ="battle">BATTLE!</button>');
+		$('#battle').prop('disabled', true);
 		$('#game').append('<p>It is currently <span id = "EggbertScore">0</span> rounds to <span id = "ComputerScore">0</span> rounds </p>');
 		$('#game').append('<p>The score for this round is <span id = "EggbertPoints">0</span> points to <span id = "ComputerPoints">0</span> points.</p>');
 		
-		$('#playRound').on('click', () =>{
-			this.playGame(this.eggbert, this.computer);
-			console.log('Out of Cards to play with, Game Over!');
-			this.determineGameWinner(this.eggbert, this.computer);
-		})	
-	}	
+		$('#playRound').on('click', () => {
+			this.playRound(this.eggbert, this.computer);
+		});
+	}
 }
 
 game.startGame();
